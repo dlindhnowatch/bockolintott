@@ -399,6 +399,19 @@ function updateLightboxImage() {
     lightboxImage.alt = image.alt;
 }
 
+// Public lightbox navigation functions for inline buttons
+function lightboxPrev() {
+    if (!isLightboxOpen) return;
+    goToSlide(currentSlide - 1);
+    updateLightboxImage();
+}
+
+function lightboxNext() {
+    if (!isLightboxOpen) return;
+    goToSlide(currentSlide + 1);
+    updateLightboxImage();
+}
+
 /**
  * Contact form functionality
  */
@@ -575,6 +588,8 @@ if (typeof window !== 'undefined') {
     window.BockLintott = {
         goToSlide,
         openLightbox,
+        lightboxPrev,
+        lightboxNext,
         CONFIG
     };
 }
