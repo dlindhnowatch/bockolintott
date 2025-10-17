@@ -192,6 +192,7 @@ function createIndicators() {
 function setupGalleryControls() {
     const prevBtn = document.querySelector('.gallery-prev');
     const nextBtn = document.querySelector('.gallery-next');
+    const galleryContainer = document.querySelector('.gallery-container');
 
     prevBtn.addEventListener('click', () => {
         goToSlide(currentSlide - 1);
@@ -232,16 +233,20 @@ function setupGalleryControls() {
 
     // Keyboard navigation
     document.addEventListener('keydown', (e) => {
-        if (!isLightboxOpen && (e.target.closest('.gallery-container') || document.activeElement.closest('.gallery-container'))) {
-            if (e.key === 'ArrowLeft') {
-                e.preventDefault();
+        if (isLightboxOpen) return; // lightbox har egen hantering
+        const key = e.key;
+        // Aktivera om galleriet har fokus eller är (delvis) i viewport
+        const galleryRect = galleryContainer.getBoundingClientRect();
+        const inView = galleryRect.top < window.innerHeight && galleryRect.bottom > 0;
+        const hasFocus = document.activeElement === galleryContainer || galleryContainer.contains(document.activeElement);
+        if ((inView || hasFocus) && (key === 'ArrowLeft' || key === 'ArrowRight')) {
+            e.preventDefault();
+            if (key === 'ArrowLeft') {
                 goToSlide(currentSlide - 1);
-                resetAutoSlide();
-            } else if (e.key === 'ArrowRight') {
-                e.preventDefault();
+            } else {
                 goToSlide(currentSlide + 1);
-                resetAutoSlide();
             }
+            resetAutoSlide();
         }
     });
 }
