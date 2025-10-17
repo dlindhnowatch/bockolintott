@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bock & Lintott – Klassiska möbler och restaurering</title>
+    <meta name="description" content="Bock & Lintott erbjuder varsamt restaurerade klassiska möbler med handplockad design. Traditionellt hantverk kombinerat med hållbar form för tidlösa inredningslösningar.">
+    
+    <!-- Preconnect för prestanda -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Typsnitt -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Instagram Embed Script -->
+    <script async src="https://www.instagram.com/embed.js"></script>
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Bock & Lintott – Klassiska möbler och restaurering">
+    <meta property="og:description" content="Varsamt restaurerade klassiska möbler med handplockad design. Traditionellt hantverk kombinerat med hållbar form.">
+    <meta property="og:image" content="./images/top_background.jpg">
+    <meta property="og:url" content="https://bocklintott.se">
+    <meta property="og:type" content="website">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Bock & Lintott – Klassiska möbler och restaurering">
+    <meta name="twitter:description" content="Varsamt restaurerade klassiska möbler med handplockad design. Traditionellt hantverk kombinerat med hållbar form.">
+    <meta name="twitter:image" content="./images/top_background.jpg">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="./images/logo.png">
+    
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header" role="banner">
+        <div class="container">
+            <div class="header-content">
+                <a href="#home" aria-label="Bock & Lintott - Hem">
+                    <img src="./images/logo.png" alt="Bock & Lintott" class="logo">
+                </a>
+                
+                <nav class="nav" role="navigation" aria-label="Huvudmeny">
+                    <ul class="nav">
+                        <li><a href="#home">Hem</a></li>
+                        <li><a href="#about">Om oss</a></li>
+                        <li><a href="#gallery">Galleri</a></li>
+                        <li><a href="#instagram">Instagram</a></li>
+                        <li><a href="#contact">Kontakt</a></li>
+                    </ul>
+                </nav>
+                
+                <button class="mobile-menu-toggle" aria-label="Öppna mobilmeny">☰</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav" role="navigation" aria-label="Mobilmeny">
+        <button class="mobile-nav-close" aria-label="Stäng mobilmeny">✕</button>
+        <ul class="mobile-nav-list">
+            <li><a href="#home">Hem</a></li>
+            <li><a href="#about">Om oss</a></li>
+            <li><a href="#gallery">Galleri</a></li>
+            <li><a href="#instagram">Instagram</a></li>
+            <li><a href="#contact">Kontakt</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home" role="banner">
+        <img src="./images/top_background.jpg" 
+             alt="Elegant möbler i vardagsrum" class="hero-bg" loading="eager">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <img src="./images/logo.png" alt="Bock & Lintott" class="hero-logo">
+            <h1 class="hero-title sr-only">Bock & Lintott</h1>
+            <p class="hero-subtitle">Varsamt restaurerade klassiska möbler med handplockad design. Traditionellt hantverk kombinerat med hållbar form.</p>
+            <div class="hero-buttons">
+                <a href="#gallery" class="btn btn-primary">Se våra möbler</a>
+                <a href="#contact" class="btn btn-secondary">Kontakta oss</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about" id="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>Om Bock & Lintott</h2>
+                    <p class="about-description">
+                        Sedan 2024 har vi på Bock & Lintott specialiserat oss på varsamt restaurerade klassiska möbler med handplockad design. 
+                        Vi erbjuder en unik kombination av traditionellt hantverk och hållbar form. 
+                        Vårt sortiment består av noggrant utvalda designmöbler från både etablerade och 
+                        upp-och-kommande designers.
+                    </p>
+                    <a href="#about" class="read-more" onclick="openModal()">Läs mer om oss →</a>
+                </div>
+                <div class="about-image-container">
+                    <img src="./images/image_02.jpg" 
+                         alt="Elegant möbelshowroom" class="about-image fade-in">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section class="gallery" id="gallery">
+        <div class="container">
+            <h2>Vårt Galleri</h2>
+            <p class="gallery-intro">Upptäck vårt handplockade sortiment av klassiska och moderna möbler</p>
+            
+            <div class="gallery-container">
+                <div class="gallery-slider" id="gallery-slider">
+                    <!-- Bilder läses in dynamiskt via JavaScript -->
+                </div>
+                <button class="gallery-controls gallery-prev" onclick="prevSlide()" aria-label="Föregående bild">‹</button>
+                <button class="gallery-controls gallery-next" onclick="nextSlide()" aria-label="Nästa bild">›</button>
+                <div class="gallery-indicators" id="gallery-indicators">
+                    <!-- Indikatorer läses in dynamiskt -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Instagram Section -->
+    <section class="instagram" id="instagram">
+        <div class="container">
+            <h2>Följ oss på Instagram</h2>
+            <div class="instagram-grid">
+                <!-- Instagram Post 1 -->
+                <div class="instagram-post">
+                    <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DO6gKdJDEpc/" data-instgrm-version="14"></blockquote>
+                </div>
+                
+                <!-- Instagram Post 2 -->
+                <div class="instagram-post">
+                    <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/p/DJ2DG6lIKT0/" data-instgrm-version="14"></blockquote>
+                </div>
+                
+                <!-- Instagram Post 3 -->
+                <div class="instagram-post">
+                    <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DFGcP38O_Cr/" data-instgrm-version="14"></blockquote>
+                </div>
+            </div>
+            
+            <div class="instagram-follow">
+                <a href="https://www.instagram.com/bocklintott/" 
+                   class="btn btn-primary" 
+                   target="_blank" 
+                   rel="noopener noreferrer">
+                    Följ @bocklintott
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <h2>Kontakta Oss</h2>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <strong>Adress</strong>
+                        <span>Försa knarkkrog 15, 123 45 Försa</span>
+                    </div>
+                    <div class="contact-item">
+                        <strong>Telefon</strong>
+                        <span>070 123 345 456</span>
+                    </div>
+                    <div class="contact-item">
+                        <strong>E-post</strong>
+                        <span>info@bocklintott.se</span>
+                    </div>
+                    <div class="contact-item">
+                        <strong>Öppettider</strong>
+                        <span>Måndag-Fredag: 10:00-18:00<br>
+                              Lördag: 10:00-16:00<br>
+                              Söndag: Stängt</span>
+                    </div>
+                    
+                    <!-- Inbäddad Google Maps -->
+                    <div class="maps-container">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2034.8543720782395!2d18.07029721!3d59.334507900000004!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x465f763119640bcb%3A0xa80d27d3679d7766!2sStorgatan%2015%2C%20114%2044%20Stockholm!5e0!3m2!1ssv!2sse!4v1635789012345!5m2!1ssv!2sse" 
+                                allowfullscreen="" 
+                                loading="lazy" 
+                                referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+                </div>
+                
+                <div class="contact-form">
+                    <form id="contact-form" onsubmit="submitForm(event)">
+                        <div class="form-group">
+                            <label for="name">Namn *</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">E-post *</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Telefon</label>
+                            <input type="tel" id="phone" name="phone">
+                        </div>
+                        <div class="form-group">
+                            <label for="subject">Ämne</label>
+                            <input type="text" id="subject" name="subject">
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Meddelande *</label>
+                            <textarea id="message" name="message" required></textarea>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="consent" name="consent" required>
+                            <label for="consent">Jag samtycker till att mina uppgifter behandlas enligt <a href="#" onclick="openPrivacyModal()">integritetspolicyn</a> *</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Skicka meddelande</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <img src="./images/logo.png" alt="Bock & Lintott" class="footer-logo">
+                    <p>Varsamt restaurerade klassiska möbler med handplockad design. Traditionellt hantverk kombinerat med hållbar form.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Snabblänkar</h3>
+                    <ul class="footer-links">
+                        <li><a href="#home">Hem</a></li>
+                        <li><a href="#about">Om oss</a></li>
+                        <li><a href="#gallery">Galleri</a></li>
+                        <li><a href="#contact">Kontakt</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Kontakt</h3>
+                    <ul class="footer-links">
+                        <li>Storgatan 15, 114 44 Stockholm</li>
+                        <li>08-123 456 78</li>
+                        <li>info@bocklintott.se</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Följ oss</h3>
+                    <ul class="footer-links">
+                        <li><a href="https://www.instagram.com/bocklintott/" target="_blank">Instagram</a></li>
+                        <li><a href="#" onclick="openPrivacyModal()">Integritetspolicy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Bock & Lintott. Alla rättigheter förbehålls.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal för "Läs mer" -->
+    <div class="modal" id="about-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()" aria-label="Stäng modal">✕</button>
+            <h2>Vår historia</h2>
+            <p>Bock & Lintott grundades 1987 av Maria Bock och Lars Lintott, två passionerade designers med en gemensam vision om att skapa exceptionella möbler som kombinerar traditionellt hantverk med modern funktionalitet.</p>
+            
+            <h3>Våra värderingar</h3>
+            <ul>
+                <li><strong>Kvalitet:</strong> Varje möbel är noggrant handplockad och kontrollerad</li>
+                <li><strong>Hållbarhet:</strong> Vi tror på möbler som håller livet ut</li>
+                <li><strong>Design:</strong> Tidlös elegans som aldrig går ur stil</li>
+                <li><strong>Service:</strong> Personlig rådgivning för varje kund</li>
+            </ul>
+            
+            <p>Idag fortsätter vi att vara en familjefirma som värdesätter nära relationer med våra kunder och leverantörer.</p>
+        </div>
+    </div>
+
+    <!-- Integritetspolicy Modal -->
+    <div class="modal" id="privacy-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closePrivacyModal()" aria-label="Stäng modal">✕</button>
+            <h2>Integritetspolicy</h2>
+            <p>Vi på Bock & Lintott respekterar din integritet och behandlar dina personuppgifter enligt GDPR.</p>
+            
+            <h3>Vilka uppgifter samlar vi in?</h3>
+            <p>Vi samlar in namn, e-postadress, telefonnummer och meddelanden som du frivilligt lämnar genom vårt kontaktformulär.</p>
+            
+            <h3>Hur använder vi dina uppgifter?</h3>
+            <p>Dina uppgifter används endast för att kunna svara på din förfrågan och ge dig bästa möjliga service.</p>
+            
+            <h3>Dina rättigheter</h3>
+            <p>Du har rätt att få tillgång till, rätta, radera och begränsa behandlingen av dina personuppgifter. Kontakta oss på info@bocklintott.se för att utöva dina rättigheter.</p>
+        </div>
+    </div>
+
+    <!-- Lightbox för galleribilder -->
+    <div class="lightbox" id="lightbox">
+        <div class="lightbox-content">
+            <img id="lightbox-img" src="" alt="">
+            <button class="lightbox-close" onclick="closeLightbox()" aria-label="Stäng lightbox">✕</button>
+            <button class="lightbox-prev" onclick="lightboxPrev()" aria-label="Föregående bild">‹</button>
+            <button class="lightbox-next" onclick="lightboxNext()" aria-label="Nästa bild">›</button>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="./js/main.js"></script>
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                if (window.instgrm && window.instgrm.Embeds) {
+                    window.instgrm.Embeds.process();
+                }
+            });
+        </script>
+</body>
+</html>
