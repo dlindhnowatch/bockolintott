@@ -1,600 +1,318 @@
 /**
- * Bock & Lintott - Main JavaScript
- * Professional website functionality
+ * Bock & Lintott - Main JavaScript (Clean Consolidated Version)
+ * Funktioner: Galleri + Lightbox + Modaler + Parallax + Kontaktformulär + Tangentbord
  */
 
-// Configuration
-const CONFIG = {
-    INSTAGRAM_HANDLE: 'bockolintott',
-    CONTACT_EMAIL: 'info@bocklintott.se',
-    MAPS_IFRAME_SRC: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2034.9984391806187!2d18.063240816022387!3d59.33415998166139!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x465f763119640bcb%3A0xa80d27d3679d7766!2sStockholm!5e0!3m2!1sen!2sse!4v1639234567890!5m2!1sen!2sse',
-    AUTO_SLIDE_INTERVAL: 5000
-};
-
-// Gallery images - will be populated dynamically
+// ---- Global state ----
+const CONFIG = { AUTO_SLIDE_INTERVAL: 5000 };
 let galleryImages = [];
-
-// DOM Elements
-const header = document.querySelector('.header');
-const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-const mobileNav = document.querySelector('.mobile-nav');
-const mobileNavClose = document.querySelector('.mobile-nav-close');
-const heroBackground = document.querySelector('.hero-bg');
-const gallerySlider = document.getElementById('gallery-slider');
-const galleryIndicators = document.getElementById('gallery-indicators');
-const modal = document.getElementById('about-modal');
-const readMoreBtn = document.getElementById('read-more-btn');
-const modalClose = document.querySelector('.modal-close');
-const lightbox = document.getElementById('lightbox');
-const lightboxImage = document.getElementById('lightbox-image');
-const contactForm = document.getElementById('contact-form');
-
-// State
 let currentSlide = 0;
 let slideInterval;
 let isLightboxOpen = false;
+let header, mobileMenuToggle, mobileNav, mobileNavClose, heroBackground,
+    gallerySlider, galleryIndicators,
+    aboutModal, aboutModalClose, privacyModal, privacyModalClose,
+    lightbox, lightboxImage, contactForm;
 
-/**
- * Initialize application
- */
-document.addEventListener('DOMContentLoaded', async function() {
+document.addEventListener('DOMContentLoaded', async () => {
+    cacheDom();
     initializeHeader();
     initializeMobileMenu();
     initializeParallax();
-    await initializeGallery(); // Wait for gallery images to be discovered
+    await initializeGallery();
     initializeScrollAnimations();
-    initializeModal();
+    initializeAboutModal();
+    initializePrivacyModal();
     initializeLightbox();
     initializeContactForm();
     initializeSmoothScroll();
+    initializeGlobalKeyboard();
 });
 
-/**
- * Header functionality
- */
+// ---- DOM Caching ----
+function cacheDom() {
+    header = document.querySelector('.header');
+    mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+    mobileNav = document.querySelector('.mobile-nav');
+    mobileNavClose = document.querySelector('.mobile-nav-close');
+    heroBackground = document.querySelector('.hero-bg');
+    gallerySlider = document.getElementById('gallery-slider');
+    galleryIndicators = document.getElementById('gallery-indicators');
+    // galleryStatusEl borttagen
+    aboutModal = document.getElementById('about-modal');
+    aboutModalClose = aboutModal?.querySelector('.modal-close');
+    privacyModal = document.getElementById('privacy-modal');
+    privacyModalClose = privacyModal?.querySelector('.modal-close');
+    lightbox = document.getElementById('lightbox');
+    lightboxImage = document.getElementById('lightbox-image');
+    contactForm = document.getElementById('contact-form');
+}
+
+// ---- Keyboard Navigation ----
+function initializeGlobalKeyboard() {
+    document.addEventListener('keydown', e => {
+        const key = e.key;
+        const tag = document.activeElement.tagName.toLowerCase();
+        if (['input', 'textarea'].includes(tag)) return; // Skydda formulärinmatning
+
+        if (key === 'Escape') {
+            if (isLightboxOpen) { closeLightbox(); return; }
+            if (aboutModal?.classList.contains('open')) { closeModal(); return; }
+            if (privacyModal?.classList.contains('open')) { closePrivacyModal(); return; }
+            if (mobileNav?.classList.contains('open')) { closeMobileMenu(); return; }
+        }
+
+        if (key === 'ArrowLeft' || key === 'ArrowRight') {
+            e.preventDefault();
+            if (isLightboxOpen) {
+                key === 'ArrowLeft' ? lightboxPrev() : lightboxNext();
+            } else {
+                key === 'ArrowLeft' ? prevSlide() : nextSlide();
+            }
+        }
+    });
+}
+
+// ---- Header ----
 function initializeHeader() {
-    window.addEventListener('scroll', function() {
-        if (window.scrollY > 100) {
-            header.classList.add('scrolled');
-        } else {
-            header.classList.remove('scrolled');
-        }
-    });
+    window.addEventListener('scroll', () => header?.classList.toggle('scrolled', window.scrollY > 100));
 }
 
-/**
- * Mobile menu functionality
- */
+// ---- Mobile Menu ----
 function initializeMobileMenu() {
-    mobileMenuToggle.addEventListener('click', function() {
-        mobileNav.classList.add('open');
-        mobileMenuToggle.setAttribute('aria-expanded', 'true');
-        document.body.style.overflow = 'hidden';
-    });
-
-    mobileNavClose.addEventListener('click', closeMobileMenu);
-
-    // Close on link click
-    const mobileLinks = mobileNav.querySelectorAll('a');
-    mobileLinks.forEach(link => {
-        link.addEventListener('click', closeMobileMenu);
-    });
-
-    // Close on escape key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && mobileNav.classList.contains('open')) {
-            closeMobileMenu();
-        }
-    });
+    if (!mobileMenuToggle || !mobileNav) return;
+    mobileMenuToggle.addEventListener('click', openMobileMenu);
+    mobileNavClose?.addEventListener('click', closeMobileMenu);
+    mobileNav.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMobileMenu));
 }
-
+function openMobileMenu() {
+    mobileNav.classList.add('open');
+    mobileMenuToggle.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+}
 function closeMobileMenu() {
     mobileNav.classList.remove('open');
     mobileMenuToggle.setAttribute('aria-expanded', 'false');
     document.body.style.overflow = '';
 }
 
-/**
- * Parallax effect for hero background
- */
+// ---- Parallax ----
 function initializeParallax() {
-    if (window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
-        window.addEventListener('scroll', function() {
-            const scrolled = window.pageYOffset;
-            const rate = scrolled * -0.5;
-            heroBackground.style.transform = `translateY(${rate}px)`;
-        });
-    }
+    if (!heroBackground) return;
+    if (!window.matchMedia('(prefers-reduced-motion: no-preference)').matches) return;
+    window.addEventListener('scroll', () => {
+        heroBackground.style.transform = `translateY(${window.pageYOffset * -0.5}px)`;
+    });
 }
 
-/**
- * Gallery functionality
- */
+// ---- Gallery ----
 async function initializeGallery() {
-    // Discover available images
     galleryImages = await discoverGalleryImages();
-    
     loadGalleryImages();
     createIndicators();
     setupGalleryControls();
     startAutoSlide();
+    goToSlide(0);
 }
-
-/**
- * Discover gallery images dynamically
- */
 async function discoverGalleryImages() {
-    // List of potential image files to check
-    const potentialImages = [
-        'image_01.jpg', 'image_02.jpg', 'image_03.jpg', 'image_04.jpg', 'image_05.jpg',
-        'image_06.jpg', 'image_07.jpg', 'image_08.jpg', 'image_09.jpg', 'image_10.jpg',
-        'image_11.jpg', 'image_12.jpg', 'image_13.jpg', 'image_14.jpg', 'image_15.jpg'
-    ];
-
-    const foundImages = [];
-    
-    for (const filename of potentialImages) {
+    const potential = Array.from({ length: 15 }, (_, i) => `image_${String(i + 1).padStart(2, '0')}.jpg`);
+    const found = [];
+    for (const f of potential) {
         try {
-            const response = await fetch(`./images/${filename}`, { method: 'HEAD' });
-            if (response.ok) {
-                foundImages.push({
-                    src: `./images/${filename}`,
-                    alt: `Klassisk möbel och design från Bock & Lintott - ${filename.replace('.jpg', '').replace('image_', 'Bild ')}`
+            const r = await fetch(`./images/${f}`, { method: 'HEAD' });
+            if (r.ok) {
+                found.push({
+                    src: `./images/${f}`,
+                    alt: `Klassisk möbel och design - Bild ${f.replace('image_', '').replace('.jpg', '')}`
                 });
             }
-        } catch (error) {
-            // Image doesn't exist, continue to next
-            continue;
-        }
+        } catch (_) { /* Ignorera fel */ }
     }
-    
-    // Fallback if no images found
-    if (foundImages.length === 0) {
-        foundImages.push(
+    if (!found.length) {
+        return [
             { src: './images/image_01.jpg', alt: 'Elegant klassisk möbel i vardagsrumsmiljö' },
-            { src: './images/image_02.jpg', alt: 'Hantverkare arbetar med varsam möbelrestaurering' },
-            { src: './images/image_03.jpg', alt: 'Detaljvy av klassisk möbeldesign och hantverk' }
-        );
+            { src: './images/image_02.jpg', alt: 'Hantverkare vid restaurering' },
+            { src: './images/image_03.jpg', alt: 'Detalj av klassiskt hantverk' }
+        ];
     }
-    
-    return foundImages;
+    return found;
 }
-
-/**
- * Load gallery images into slider
- */
 function loadGalleryImages() {
-    galleryImages.forEach((image, index) => {
+    if (!gallerySlider) return;
+    galleryImages.forEach((img, i) => {
         const slide = document.createElement('div');
         slide.className = 'gallery-slide';
-        slide.innerHTML = `<img src="${image.src}" alt="${image.alt}" loading="${index === 0 ? 'eager' : 'lazy'}">`;
-        slide.addEventListener('click', () => openLightbox(index));
+        slide.innerHTML = `<img src="${img.src}" alt="${img.alt}" loading="${i === 0 ? 'eager' : 'lazy'}">`;
+        slide.addEventListener('click', () => openLightbox(i));
         gallerySlider.appendChild(slide);
     });
 }
-
-/**
- * Create gallery indicators
- */
 function createIndicators() {
-    galleryImages.forEach((_, index) => {
-        const indicator = document.createElement('button');
-        indicator.className = `gallery-indicator ${index === 0 ? 'active' : ''}`;
-        indicator.setAttribute('aria-label', `Gå till bild ${index + 1}`);
-        indicator.addEventListener('click', () => goToSlide(index));
-        galleryIndicators.appendChild(indicator);
+    if (!galleryIndicators) return;
+    galleryImages.forEach((_, i) => {
+        const btn = document.createElement('button');
+        btn.className = `gallery-indicator ${i === 0 ? 'active' : ''}`;
+        btn.setAttribute('aria-label', `Gå till bild ${i + 1}`);
+        btn.addEventListener('click', () => { goToSlide(i); resetAutoSlide(); });
+        galleryIndicators.appendChild(btn);
     });
 }
-
-/**
- * Setup gallery controls and navigation
- */
 function setupGalleryControls() {
-    const prevBtn = document.querySelector('.gallery-prev');
-    const nextBtn = document.querySelector('.gallery-next');
-    const galleryContainer = document.querySelector('.gallery-container');
-
-    prevBtn.addEventListener('click', () => {
-        goToSlide(currentSlide - 1);
-        resetAutoSlide();
-    });
-
-    nextBtn.addEventListener('click', () => {
-        goToSlide(currentSlide + 1);
-        resetAutoSlide();
-    });
-
-    // Touch/swipe support
+    const prev = document.querySelector('.gallery-prev');
+    const next = document.querySelector('.gallery-next');
+    prev?.addEventListener('click', () => prevSlide());
+    next?.addEventListener('click', () => nextSlide());
     let startX = 0;
-    let endX = 0;
-
-    gallerySlider.addEventListener('touchstart', (e) => {
-        startX = e.touches[0].clientX;
-    });
-
-    gallerySlider.addEventListener('touchend', (e) => {
-        endX = e.changedTouches[0].clientX;
-        handleSwipe();
-    });
-
-    function handleSwipe() {
-        const threshold = 50;
-        const diff = startX - endX;
-
-        if (Math.abs(diff) > threshold) {
-            if (diff > 0) {
-                goToSlide(currentSlide + 1);
-            } else {
-                goToSlide(currentSlide - 1);
-            }
-            resetAutoSlide();
-        }
-    }
-
-    // Keyboard navigation
-    document.addEventListener('keydown', (e) => {
-        if (isLightboxOpen) return; // lightbox har egen hantering
-        const key = e.key;
-        // Aktivera om galleriet har fokus eller är (delvis) i viewport
-        const galleryRect = galleryContainer.getBoundingClientRect();
-        const inView = galleryRect.top < window.innerHeight && galleryRect.bottom > 0;
-        const hasFocus = document.activeElement === galleryContainer || galleryContainer.contains(document.activeElement);
-        if ((inView || hasFocus) && (key === 'ArrowLeft' || key === 'ArrowRight')) {
-            e.preventDefault();
-            if (key === 'ArrowLeft') {
-                goToSlide(currentSlide - 1);
-            } else {
-                goToSlide(currentSlide + 1);
-            }
-            resetAutoSlide();
-        }
+    gallerySlider?.addEventListener('touchstart', e => { startX = e.touches[0].clientX; });
+    gallerySlider?.addEventListener('touchend', e => {
+        const diff = startX - e.changedTouches[0].clientX;
+        if (Math.abs(diff) > 50) { diff > 0 ? nextSlide() : prevSlide(); }
     });
 }
-
-/**
- * Navigate to specific slide
- */
 function goToSlide(index) {
+    if (!galleryImages.length || !gallerySlider) return;
     currentSlide = ((index % galleryImages.length) + galleryImages.length) % galleryImages.length;
-    
     gallerySlider.style.transform = `translateX(-${currentSlide * 100}%)`;
-    
-    // Update indicators
-    document.querySelectorAll('.gallery-indicator').forEach((indicator, i) => {
-        indicator.classList.toggle('active', i === currentSlide);
-    });
+    document.querySelectorAll('.gallery-indicator').forEach((el, i) => el.classList.toggle('active', i === currentSlide));
+    if (isLightboxOpen) updateLightboxImage();
 }
+function prevSlide() { goToSlide(currentSlide - 1); resetAutoSlide(); }
+function nextSlide() { goToSlide(currentSlide + 1); resetAutoSlide(); }
+function startAutoSlide() { slideInterval = setInterval(() => { goToSlide(currentSlide + 1); }, CONFIG.AUTO_SLIDE_INTERVAL); }
+function resetAutoSlide() { clearInterval(slideInterval); startAutoSlide(); }
+// updateGalleryStatus borttagen (önskad borttagning av status)
 
-/**
- * Start automatic slideshow
- */
-function startAutoSlide() {
-    slideInterval = setInterval(() => {
-        goToSlide(currentSlide + 1);
-    }, CONFIG.AUTO_SLIDE_INTERVAL);
-}
-
-/**
- * Reset automatic slideshow timer
- */
-function resetAutoSlide() {
-    clearInterval(slideInterval);
-    startAutoSlide();
-}
-
-/**
- * Initialize scroll animations
- */
+// ---- Scroll Animations ----
 function initializeScrollAnimations() {
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-            }
-        });
-    }, observerOptions);
-
-    document.querySelectorAll('.fade-in').forEach(el => {
-        observer.observe(el);
-    });
+    const obs = new IntersectionObserver(entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }), { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+    document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
 }
 
-/**
- * Modal functionality
- */
-function initializeModal() {
-    readMoreBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        openModal();
-    });
-
-    modalClose.addEventListener('click', closeModal);
-
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            closeModal();
-        }
-    });
-
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal.classList.contains('open')) {
-            closeModal();
-        }
-    });
+// ---- About Modal ----
+function initializeAboutModal() {
+    if (!aboutModal) return;
+    document.querySelectorAll('[onclick="openModal()"]').forEach(el => el.addEventListener('click', e => { e.preventDefault(); openModal(); }));
+    aboutModalClose?.addEventListener('click', () => closeModal());
+    aboutModal.addEventListener('click', e => { if (e.target === aboutModal) closeModal(); });
 }
+function openModal() { aboutModal?.classList.add('open'); document.body.style.overflow = 'hidden'; aboutModalClose?.focus(); }
+function closeModal() { aboutModal?.classList.remove('open'); document.body.style.overflow = ''; }
 
-function openModal() {
-    modal.classList.add('open');
-    document.body.style.overflow = 'hidden';
-    modalClose.focus();
+// ---- Privacy Modal ----
+function initializePrivacyModal() {
+    if (!privacyModal) return;
+    document.querySelectorAll('[onclick="openPrivacyModal()"]').forEach(el => el.addEventListener('click', e => { e.preventDefault(); openPrivacyModal(); }));
+    privacyModalClose?.addEventListener('click', () => closePrivacyModal());
+    privacyModal.addEventListener('click', e => { if (e.target === privacyModal) closePrivacyModal(); });
 }
+function openPrivacyModal() { privacyModal?.classList.add('open'); document.body.style.overflow = 'hidden'; privacyModalClose?.focus(); }
+function closePrivacyModal() { privacyModal?.classList.remove('open'); document.body.style.overflow = ''; }
 
-function closeModal() {
-    modal.classList.remove('open');
-    document.body.style.overflow = '';
-    readMoreBtn.focus();
-}
-
-/**
- * Lightbox functionality
- */
+// ---- Lightbox ----
 function initializeLightbox() {
-    const lightboxClose = document.querySelector('.lightbox-close');
-    const lightboxPrev = document.querySelector('.lightbox-prev');
-    const lightboxNext = document.querySelector('.lightbox-next');
-
-    lightboxClose.addEventListener('click', closeLightbox);
-    lightboxPrev.addEventListener('click', () => {
-        goToSlide(currentSlide - 1);
-        updateLightboxImage();
-    });
-    lightboxNext.addEventListener('click', () => {
-        goToSlide(currentSlide + 1);
-        updateLightboxImage();
-    });
-
-    lightbox.addEventListener('click', (e) => {
-        if (e.target === lightbox) {
-            closeLightbox();
-        }
-    });
-
-    document.addEventListener('keydown', (e) => {
-        if (isLightboxOpen) {
-            if (e.key === 'Escape') {
-                closeLightbox();
-            } else if (e.key === 'ArrowLeft') {
-                e.preventDefault();
-                goToSlide(currentSlide - 1);
-                updateLightboxImage();
-            } else if (e.key === 'ArrowRight') {
-                e.preventDefault();
-                goToSlide(currentSlide + 1);
-                updateLightboxImage();
-            }
-        }
-    });
+    if (!lightbox) return;
+    const lbClose = lightbox.querySelector('.lightbox-close');
+    const lbPrev = lightbox.querySelector('.lightbox-prev');
+    const lbNext = lightbox.querySelector('.lightbox-next');
+    lbClose?.addEventListener('click', () => closeLightbox());
+    lbPrev?.addEventListener('click', () => lightboxPrev());
+    lbNext?.addEventListener('click', () => lightboxNext());
+    lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
 }
+function openLightbox(index) { isLightboxOpen = true; goToSlide(index); lightbox?.classList.add('open'); document.body.style.overflow = 'hidden'; lightbox?.querySelector('.lightbox-close')?.focus(); }
+function closeLightbox() { isLightboxOpen = false; lightbox?.classList.remove('open'); document.body.style.overflow = ''; }
+function updateLightboxImage() { if (!lightboxImage || !galleryImages.length) return; const img = galleryImages[currentSlide]; lightboxImage.src = img.src; lightboxImage.alt = img.alt; }
+function lightboxPrev() { if (isLightboxOpen) goToSlide(currentSlide - 1); }
+function lightboxNext() { if (isLightboxOpen) goToSlide(currentSlide + 1); }
 
-function openLightbox(index) {
-    currentSlide = index;
-    updateLightboxImage();
-    lightbox.classList.add('open');
-    document.body.style.overflow = 'hidden';
-    isLightboxOpen = true;
-    
-    // Focus trap
-    document.querySelector('.lightbox-close').focus();
-}
-
-function closeLightbox() {
-    lightbox.classList.remove('open');
-    document.body.style.overflow = '';
-    isLightboxOpen = false;
-}
-
-function updateLightboxImage() {
-    const image = galleryImages[currentSlide];
-    lightboxImage.src = image.src;
-    lightboxImage.alt = image.alt;
-}
-
-// Public lightbox navigation functions for inline buttons
-function lightboxPrev() {
-    if (!isLightboxOpen) return;
-    goToSlide(currentSlide - 1);
-    updateLightboxImage();
-}
-
-function lightboxNext() {
-    if (!isLightboxOpen) return;
-    goToSlide(currentSlide + 1);
-    updateLightboxImage();
-}
-
-/**
- * Contact form functionality
- */
-function initializeContactForm() {
-    contactForm.addEventListener('submit', handleFormSubmit);
-}
-
+// ---- Contact Form ----
+function initializeContactForm() { if (contactForm) contactForm.addEventListener('submit', handleFormSubmit); }
+function submitForm(e) { handleFormSubmit(e); }
 async function handleFormSubmit(e) {
     e.preventDefault();
-    
-    // Reset previous errors
+    if (!contactForm) return;
     clearFormErrors();
-    
-    // Validate form
-    const formData = new FormData(contactForm);
-    const errors = validateForm(formData);
-    
-    if (Object.keys(errors).length > 0) {
-        displayFormErrors(errors);
-        return;
-    }
-    
-    // Simulate form submission (replace with actual endpoint)
+    const data = new FormData(contactForm);
+    const errors = validateForm(data);
+    if (Object.keys(errors).length) { displayFormErrors(errors); return; }
     try {
-        const submitBtn = contactForm.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
-        submitBtn.textContent = 'Skickar...';
-        submitBtn.disabled = true;
-        
-        // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Show success message
-        document.getElementById('form-success').style.display = 'block';
+        const btn = contactForm.querySelector('button[type="submit"]');
+        const original = btn.textContent;
+        btn.textContent = 'Skickar...';
+        btn.disabled = true;
+        await new Promise(r => setTimeout(r, 900));
+        const fs = document.getElementById('form-success');
+        if (fs) fs.style.display = 'block';
         contactForm.reset();
-        
-        submitBtn.textContent = originalText;
-        submitBtn.disabled = false;
-        
-        // Hide success message after 5 seconds
-        setTimeout(() => {
-            document.getElementById('form-success').style.display = 'none';
-        }, 5000);
-        
-    } catch (error) {
-        console.error('Form submission error:', error);
-        alert('Ett fel uppstod. Vänligen försök igen.');
+        btn.textContent = original;
+        btn.disabled = false;
+        setTimeout(() => { if (fs) fs.style.display = 'none'; }, 5000);
+    } catch (err) {
+        console.error('Form error', err);
+        alert('Ett fel uppstod. Försök igen.');
     }
 }
-
-/**
- * Form validation
- */
-function validateForm(formData) {
+function validateForm(data) {
     const errors = {};
-    
-    const name = formData.get('name').trim();
-    const email = formData.get('email').trim();
-    const message = formData.get('message').trim();
-    const consent = formData.get('consent');
-    
-    if (!name) {
-        errors.name = 'Namn är obligatoriskt.';
-    }
-    
-    if (!email) {
-        errors.email = 'E-post är obligatoriskt.';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        errors.email = 'Ange en giltig e-postadress.';
-    }
-    
-    if (!message) {
-        errors.message = 'Meddelande är obligatoriskt.';
-    } else if (message.length < 10) {
-        errors.message = 'Meddelandet måste vara minst 10 tecken långt.';
-    }
-    
-    if (!consent) {
-        errors.consent = 'Du måste godkänna behandlingen av personuppgifter.';
-    }
-    
+    const name = (data.get('name') || '').trim();
+    const email = (data.get('email') || '').trim();
+    const message = (data.get('message') || '').trim();
+    const consent = data.get('consent');
+    if (!name) errors.name = 'Namn är obligatoriskt.';
+    if (!email) errors.email = 'E-post är obligatoriskt.'; else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Ogiltig e-postadress.';
+    if (!message) errors.message = 'Meddelande är obligatoriskt.'; else if (message.length < 10) errors.message = 'Minst 10 tecken.';
+    if (!consent) errors.consent = 'Kräver godkännande.';
     return errors;
 }
-
-/**
- * Display form validation errors
- */
 function displayFormErrors(errors) {
-    Object.keys(errors).forEach(field => {
-        const errorElement = document.getElementById(`${field}-error`);
-        if (errorElement) {
-            errorElement.textContent = errors[field];
-            errorElement.style.color = '#dc3545';
-            errorElement.style.fontSize = '0.875rem';
-            errorElement.style.marginTop = '0.25rem';
-        }
-        
-        const inputElement = document.getElementById(field);
-        if (inputElement) {
-            inputElement.style.borderColor = '#dc3545';
-        }
+    Object.entries(errors).forEach(([field, msg]) => {
+        const errEl = document.getElementById(`${field}-error`);
+        if (errEl) errEl.textContent = msg;
+        const input = document.getElementById(field);
+        if (input) input.style.borderColor = '#dc3545';
     });
 }
-
-/**
- * Clear form validation errors
- */
 function clearFormErrors() {
-    const errorElements = document.querySelectorAll('.error-message');
-    errorElements.forEach(el => {
-        el.textContent = '';
-    });
-    
-    const inputElements = contactForm.querySelectorAll('input, textarea');
-    inputElements.forEach(el => {
-        el.style.borderColor = '#e5e5e5';
-    });
+    if (!contactForm) return;
+    document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+    contactForm.querySelectorAll('input, textarea').forEach(el => el.style.borderColor = '#e5e5e5');
 }
 
-/**
- * Smooth scrolling navigation
- */
+// ---- Smooth Scroll ----
 function initializeSmoothScroll() {
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', e => {
+            const id = a.getAttribute('href');
+            if (!id || id === '#' || id.startsWith('http')) return;
+            const target = document.querySelector(id);
+            if (!target) return;
             e.preventDefault();
-            
-            const targetId = this.getAttribute('href');
-            const targetElement = document.querySelector(targetId);
-            
-            if (targetElement) {
-                const headerHeight = header.offsetHeight;
-                const targetPosition = targetElement.offsetTop - headerHeight;
-                
-                window.scrollTo({
-                    top: targetPosition,
-                    behavior: 'smooth'
-                });
-            }
+            const offset = header?.offsetHeight || 0;
+            window.scrollTo({ top: target.offsetTop - offset, behavior: 'smooth' });
         });
     });
 }
 
-/**
- * Performance optimizations
- */
-
-// Pause auto-slide when page is not visible
-document.addEventListener('visibilitychange', function() {
-    if (document.hidden) {
-        clearInterval(slideInterval);
-    } else {
-        resetAutoSlide();
-    }
+// ---- Other (lifecycle) ----
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) clearInterval(slideInterval); else resetAutoSlide();
 });
+window.addEventListener('resize', () => { goToSlide(currentSlide); });
 
-// Handle window resize
-window.addEventListener('resize', function() {
-    // Recalculate gallery position
-    goToSlide(currentSlide);
-});
-
-// Preload next gallery image
-function preloadNextImage() {
-    if (galleryImages.length > 1) {
-        const nextIndex = (currentSlide + 1) % galleryImages.length;
-        const nextImage = new Image();
-        nextImage.src = galleryImages[nextIndex].src;
-    }
-}
-
-// Export functions for debugging (development only)
+// ---- Exports ----
 if (typeof window !== 'undefined') {
-    window.BockLintott = {
-        goToSlide,
-        openLightbox,
-        lightboxPrev,
-        lightboxNext,
-        CONFIG
-    };
+    window.openModal = openModal;
+    window.closeModal = closeModal;
+    window.openPrivacyModal = openPrivacyModal;
+    window.closePrivacyModal = closePrivacyModal;
+    window.openLightbox = openLightbox;
+    window.closeLightbox = closeLightbox;
+    window.lightboxPrev = lightboxPrev;
+    window.lightboxNext = lightboxNext;
+    window.prevSlide = prevSlide;
+    window.nextSlide = nextSlide;
+    window.goToSlide = goToSlide;
+    window.submitForm = submitForm;
+    window.BockLintott = { CONFIG };
 }
+
