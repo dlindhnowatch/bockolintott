@@ -731,6 +731,17 @@ body {
     object-fit: contain;
 }
 
+.lightbox.open .lightbox-image {
+    animation: fadeIn 300ms ease;
+}
+
+.lightbox-close:focus,
+.lightbox-prev:focus,
+.lightbox-next:focus {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
+}
+
 .lightbox-close {
     position: absolute;
     top: -50px;

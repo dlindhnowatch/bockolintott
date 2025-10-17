@@ -305,10 +305,10 @@
     </div>
 
     <!-- Lightbox för galleribilder -->
-    <div class="lightbox" id="lightbox">
+    <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Visar förstorat galleriobjekt">
         <div class="lightbox-content">
-            <img id="lightbox-img" src="" alt="">
-            <button class="lightbox-close" onclick="closeLightbox()" aria-label="Stäng lightbox">✕</button>
+            <img id="lightbox-image" src="" alt="" role="img" aria-live="polite">
+            <button class="lightbox-close" onclick="closeLightbox()" aria-label="Stäng bildvisning">✕</button>
             <button class="lightbox-prev" onclick="lightboxPrev()" aria-label="Föregående bild">‹</button>
             <button class="lightbox-next" onclick="lightboxNext()" aria-label="Nästa bild">›</button>
         </div>
