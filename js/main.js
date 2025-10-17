@@ -10,7 +10,7 @@ let currentSlide = 0;
 let slideInterval;
 let isLightboxOpen = false;
 let header, mobileMenuToggle, mobileNav, mobileNavClose, heroBackground,
-    gallerySlider, galleryIndicators,
+    gallerySlider, galleryIndicators, instagramCarouselInner,
     aboutModal, aboutModalClose, privacyModal, privacyModalClose,
     lightbox, lightboxImage, contactForm;
 
@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initializeAboutModal();
     initializePrivacyModal();
     initializeLightbox();
+    initializeInstagramCarousel();
     initializeContactForm();
     initializeSmoothScroll();
     initializeGlobalKeyboard();
@@ -38,6 +39,7 @@ function cacheDom() {
     heroBackground = document.querySelector('.hero-bg');
     gallerySlider = document.getElementById('gallery-slider');
     galleryIndicators = document.getElementById('gallery-indicators');
+    instagramCarouselInner = document.querySelector('.instagram-carousel-inner');
     // galleryStatusEl borttagen
     aboutModal = document.getElementById('about-modal');
     aboutModalClose = aboutModal?.querySelector('.modal-close');
@@ -224,6 +226,27 @@ function closeLightbox() { isLightboxOpen = false; lightbox?.classList.remove('o
 function updateLightboxImage() { if (!lightboxImage || !galleryImages.length) return; const img = galleryImages[currentSlide]; lightboxImage.src = img.src; lightboxImage.alt = img.alt; }
 function lightboxPrev() { if (isLightboxOpen) goToSlide(currentSlide - 1); }
 function lightboxNext() { if (isLightboxOpen) goToSlide(currentSlide + 1); }
+
+// ---- Instagram Carousel ----
+function initializeInstagramCarousel() {
+    const carousel = document.querySelector('.instagram-carousel-inner');
+    if (!carousel) return;
+
+    const posts = carousel.querySelectorAll('.instagram-post');
+    if (posts.length <= 1) return;
+
+    let currentIndex = 0;
+    const intervalTime = 5000; // 5 seconds
+
+    setInterval(() => {
+        currentIndex = (currentIndex + 1) % posts.length;
+        carousel.style.transform = `translateX(-${currentIndex * 100}%)`;
+
+        if (window.instgrm) {
+            window.instgrm.Embeds.process();
+        }
+    }, intervalTime);
+}
 
 // ---- Contact Form ----
 function initializeContactForm() { if (contactForm) contactForm.addEventListener('submit', handleFormSubmit); }
